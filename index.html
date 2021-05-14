@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="schotter"></canvas>
+</body>
+
+<script>
+    var canvasW;
+    var canvasH;
+    function init() {
+        var scale = window.devicePixelRatio;
+        var schotter = document.getElementById("schotter");
+        var style = getComputedStyle(schotter);
+        var border = parseInt(style.border) * 2;
+        canvasW = schotter.width = document.body.clientWidth - border; //document.width is obsolete
+        canvasH = schotter.height = document.body.clientHeight - border; //document.height is obsolete
+        const ctx = schotter.getContext('2d');
+        ctx.filter = "blur(0.3px)";
+        ctx.imageSmoothingEnabled = true;
+        ctx.lineWidth = 1.5;
+
+        let length = Math.max(50, canvasW/30, canvasH/30).toFixed(0)
+        let randomness = 1;
+        
+        let white_space = Math.max(Math.min(canvasW * 0.16, canvasH * 0.16), length/randomness);
+        let x = ((canvasW - white_space) / length).toFixed(0);
+        let y = ((canvasH - white_space) / length).toFixed(0);
+        let white_space_x = canvasW - x * length;
+        let white_space_y = canvasH - y * length;
+        randomness = y/30 * 1.5;
+        console.log(x, y);
+        var path1;
+        var i, j;
+        ctx.translate(white_space_x / 2 + length/2, white_space_y / 2 + length/2);
+        for (i = 0; i < y; i++) {
+            for (j = 0; j < x; j++) {
+                let rotation = (Math.random() - 0.5) * (randomness / y) * (i + 1);
+                let x_shift = (Math.random() - 0.5) * (randomness / y) * (i + 1) * length;
+                let y_shift = (Math.random() - 0.5) * (randomness / y) * (i + 1) * length;
+                path1 = new Path2D();
+                ctx.rotate(rotation)
+                path1.rect(-length/2 + x_shift, -length/2 + y_shift, length, length);
+                ctx.stroke(path1);
+                ctx.rotate(-rotation)
+                ctx.translate(length, 0);
+            }
+            ctx.translate(- x * length, length)
+        }
+    }
+    init();
+    var doit;
+    window.onresize = function () {
+        clearTimeout(doit);
+        doit = setTimeout(init, 100);
+    };
+</script>
